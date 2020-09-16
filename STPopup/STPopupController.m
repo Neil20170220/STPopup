@@ -116,6 +116,11 @@ static NSMutableSet *_retainedPopupControllers;
     return [UIApplication sharedApplication].statusBarHidden;
 }
 
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    [self.ppc layoutContainerView];
+}
+
 @end
 
 @interface STPopupController () <UIViewControllerTransitioningDelegate, UIViewControllerAnimatedTransitioning, STPopupNavigationTouchEventDelegate>
