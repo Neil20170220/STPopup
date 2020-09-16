@@ -30,6 +30,11 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nullable, nonatomic, weak, readonly) STPopupController *popupController;
 
+/**
+ 底部边距
+ */
+@property (nonatomic, assign) IBInspectable float actionSheetBottomMargin;
+
 @end
 
 NS_ASSUME_NONNULL_END

@@ -52,6 +52,8 @@ static NSMutableSet *_retainedPopupControllers;
 
 @interface STPopupContainerViewController : UIViewController
 
+@property (nonatomic, weak) STPopupController *ppc;
+
 @end
 
 @implementation STPopupContainerViewController
@@ -96,6 +98,22 @@ static NSMutableSet *_retainedPopupControllers;
     else {
         [self presentViewController:vc animated:YES completion:nil];
     }
+}
+
+- (UIInterfaceOrientationMask)supportedInterfaceOrientations {
+    if (self.popupController) {
+        return [self.popupController.topViewController supportedInterfaceOrientations];
+    } else if (self.childViewControllers.count) {
+        return [self.childViewControllers.lastObject supportedInterfaceOrientations];
+    } else if (self.ppc) {
+        return [self.ppc.topViewController supportedInterfaceOrientations];
+    } else {
+        return UIInterfaceOrientationMaskPortrait;
+    }
+}
+
+- (BOOL)prefersStatusBarHidden {
+    return [UIApplication sharedApplication].statusBarHidden;
 }
 
 @end
@@ -529,6 +547,7 @@ static NSMutableSet *_retainedPopupControllers;
 {
     CGAffineTransform lastTransform = _containerView.transform;
     _containerView.transform = CGAffineTransformIdentity;
+    UIViewController *topViewController = self.topViewController;
     
     _backgroundView.frame = _containerViewController.view.bounds;
  
@@ -540,9 +559,13 @@ static NSMutableSet *_retainedPopupControllers;
     CGFloat containerViewY = (_containerViewController.view.bounds.size.height - containerViewHeight) / 2;
     
     if (self.style == STPopupStyleBottomSheet) {
-        containerViewHeight += _safeAreaInsets.bottom;
-        containerViewY = _containerViewController.view.bounds.size.height - containerViewHeight;
-        containerViewHeight += STPopupBottomSheetExtraHeight;
+        CGFloat bottomMargin = topViewController.actionSheetBottomMargin;
+        if (bottomMargin > 0) {
+            containerViewY = _containerViewController.view.bounds.size.height - containerViewHeight - bottomMargin;
+        } else {
+            containerViewY = _containerViewController.view.bounds.size.height - containerViewHeight;
+            containerViewHeight += STPopupBottomSheetExtraHeight;
+        }
     }
     
     _containerView.frame = CGRectMake((_containerViewController.view.bounds.size.width - containerViewWidth) / 2,
@@ -550,7 +573,6 @@ static NSMutableSet *_retainedPopupControllers;
     _navigationBar.frame = CGRectMake(0, 0, containerViewWidth, preferredNavigationBarHeight);
     _contentView.frame = CGRectMake(0, navigationBarHeight, contentSizeOfTopView.width, contentSizeOfTopView.height);
     
-    UIViewController *topViewController = self.topViewController;
     topViewController.view.frame = _contentView.bounds;
     
     _containerView.transform = lastTransform;
@@ -593,6 +615,7 @@ static NSMutableSet *_retainedPopupControllers;
 - (void)setup
 {
     _containerViewController = [STPopupContainerViewController new];
+    _containerViewController.ppc = self;
     _containerViewController.view.backgroundColor = [UIColor clearColor];
     if ([[[UIDevice currentDevice] systemVersion] compare:@"8.0" options:NSNumericSearch] != NSOrderedAscending) {
         _containerViewController.modalPresentationStyle = UIModalPresentationOverCurrentContext;
@@ -655,6 +678,9 @@ static NSMutableSet *_retainedPopupControllers;
 
 - (void)bgViewDidTap
 {
+    if (self.enableTapDismiss) {
+        [self dismissWithCompletion:nil];
+    }
     [_containerView endEditing:YES];
 }
 

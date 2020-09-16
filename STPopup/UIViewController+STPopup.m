@@ -64,7 +64,9 @@
 - (void)st_presentViewController:(UIViewController *)viewControllerToPresent animated:(BOOL)flag completion:(void (^)(void))completion
 {
     if (!self.popupController) {
-        [self st_presentViewController:viewControllerToPresent animated:flag completion:completion];
+        [self st_rotateIfNeededForViewController:viewControllerToPresent completion:^{
+            [self st_presentViewController:viewControllerToPresent animated:flag completion:completion];
+        }];
         return;
     }
     
@@ -74,11 +76,45 @@
 - (void)st_dismissViewControllerAnimated:(BOOL)flag completion:(void (^)(void))completion
 {
     if (!self.popupController) {
-        [self st_dismissViewControllerAnimated:flag completion:completion];
+        UIViewController *controller = self.presentingViewController;
+        if (!controller) {
+            controller = self;
+        }
+        [self st_rotateIfNeededForViewController:controller completion:^{
+            [self st_dismissViewControllerAnimated:flag completion:completion];
+        }];
         return;
     }
     
     [self.popupController dismissWithCompletion:completion];
+}
+
+- (void)st_rotateIfNeededForViewController:(UIViewController *)viewController completion:(dispatch_block_t)completion {
+    UIInterfaceOrientationMask mask = [viewController supportedInterfaceOrientations];
+    UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
+    UIInterfaceOrientationMask statusBarOrientationMask = 1 << statusBarOrientation;
+    if ((mask & statusBarOrientationMask) != statusBarOrientationMask) {
+        UIInterfaceOrientation orientation = UIInterfaceOrientationUnknown;
+        if ((mask & UIInterfaceOrientationMaskLandscapeLeft) == UIInterfaceOrientationMaskLandscapeLeft) {
+            orientation = UIInterfaceOrientationLandscapeLeft;
+        } else if ((mask & UIInterfaceOrientationMaskLandscapeRight) == UIInterfaceOrientationMaskLandscapeRight) {
+            orientation = UIInterfaceOrientationLandscapeRight;
+        } else if ((mask & UIInterfaceOrientationMaskPortraitUpsideDown) == UIInterfaceOrientationMaskPortraitUpsideDown) {
+            orientation = UIInterfaceOrientationPortraitUpsideDown;
+        } else {
+            orientation = UIInterfaceOrientationPortrait;
+        }
+        [[UIDevice currentDevice] setValue:@(orientation) forKey:@"orientation"];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (completion) {
+                completion();
+            }
+        });
+    } else {
+        if (completion) {
+            completion();
+        }
+    }
 }
 
 - (UIViewController *)st_presentedViewController
@@ -155,6 +191,19 @@
         return self.parentViewController.popupController;
     }
     return popupController;
+}
+
+- (void)setActionSheetBottomMargin:(float)actionSheetBottomMargin
+{
+    objc_setAssociatedObject(self, @selector(actionSheetBottomMargin), [NSNumber numberWithFloat:actionSheetBottomMargin], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+    if (self.popupController) {
+        [self.popupController layoutContainerView];
+    }
+}
+
+- (float)actionSheetBottomMargin
+{
+    return [objc_getAssociatedObject(self, @selector(actionSheetBottomMargin)) floatValue];
 }
 
 @end

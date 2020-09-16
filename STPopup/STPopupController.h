@@ -138,6 +138,12 @@ typedef NS_ENUM(NSUInteger, STPopupTransitionStyle) {
  */
 @property (nonatomic, assign, readonly) BOOL presented;
 
+
+/**
+  Indicates if the popup is current presented.
+  */
+@property (nonatomic, assign) BOOL enableTapDismiss;
+
 /**
  Init the popup with root view controller.
  */
@@ -192,6 +198,8 @@ typedef NS_ENUM(NSUInteger, STPopupTransitionStyle) {
  @see navigationBarHidden
  */
 - (void)setNavigationBarHidden:(BOOL)navigationBarHidden animated:(BOOL)animated;
+
+- (void)layoutContainerView;
 
 @end
 
