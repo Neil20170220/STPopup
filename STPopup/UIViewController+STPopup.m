@@ -193,17 +193,8 @@
     return popupController;
 }
 
-- (void)setActionSheetBottomMargin:(float)actionSheetBottomMargin
-{
-    objc_setAssociatedObject(self, @selector(actionSheetBottomMargin), [NSNumber numberWithFloat:actionSheetBottomMargin], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-    if (self.popupController) {
-        [self.popupController layoutContainerView];
-    }
-}
-
-- (float)actionSheetBottomMargin
-{
-    return [objc_getAssociatedObject(self, @selector(actionSheetBottomMargin)) floatValue];
+- (CGFloat)actionSheetBottomMargin {
+    return 0;
 }
 
 @end
