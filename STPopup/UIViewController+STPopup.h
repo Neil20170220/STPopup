@@ -12,6 +12,16 @@ NS_ASSUME_NONNULL_BEGIN
 
 @class STPopupController;
 
+@protocol UIViewControllerSTPopupProtocol <NSObject>
+
+@optional
+/**
+ 底部边距
+ */
+- (CGFloat)actionSheetBottomMargin;
+
+@end
+
 @interface UIViewController (STPopup)
 
 /**
@@ -29,11 +39,6 @@ NS_ASSUME_NONNULL_BEGIN
  Will be nil if the view controller is not contained in any popup controller.
  */
 @property (nullable, nonatomic, weak, readonly) STPopupController *popupController;
-
-/**
- 底部边距
- */
-- (CGFloat)actionSheetBottomMargin;
 
 @end
 

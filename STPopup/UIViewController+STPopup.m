@@ -193,8 +193,4 @@
     return popupController;
 }
 
-- (CGFloat)actionSheetBottomMargin {
-    return 0;
-}
-
 @end
