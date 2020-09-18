@@ -33,7 +33,7 @@ NS_ASSUME_NONNULL_BEGIN
 /**
  底部边距
  */
-@property (nonatomic, assign) IBInspectable float actionSheetBottomMargin;
+- (CGFloat)actionSheetBottomMargin;
 
 @end
 
