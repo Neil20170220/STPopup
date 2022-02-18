@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "FRSTPopup"
-  s.version      = "1.8.7.2"
+  s.version      = "1.8.7.3"
   s.summary      = "STPopup provides STPopupController, which works just like UINavigationController in form sheet/bottom sheet style, for both iPhone and iPad."
 
   s.description  = <<-DESC
