@@ -6,7 +6,7 @@
 //  Copyright © 2016 Sth4Me. All rights reserved.
 //
 
-#import <STPopup/STPopupController.h>
+#import <FRSTPopup/STPopupController.h>
 
 @interface STPopupControllerTransitioningFade : NSObject <STPopupControllerTransitioning>
 

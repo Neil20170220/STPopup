@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
-  s.name         = "STPopup"
-  s.version      = "1.8.7"
+  s.name         = "FRSTPopup"
+  s.version      = "1.8.7.3"
   s.summary      = "STPopup provides STPopupController, which works just like UINavigationController in form sheet/bottom sheet style, for both iPhone and iPad."
 
   s.description  = <<-DESC
@@ -20,7 +20,7 @@ Pod::Spec.new do |s|
   s.author       = { "Kevin Lin" => "kevin_lyn@outlook.com" }
 
   s.platform     = :ios, "7.0"
-  s.source       = { :git => "https://github.com/kevin0571/STPopup.git", :tag => s.version }
+  s.source       = { :git => "https://github.com/Neil20170220/STPopup.git", :tag => s.version }
 
   s.source_files = "STPopup/*.{h,m}"
   s.public_header_files = "STPopup/*.h"
