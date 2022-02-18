@@ -116,6 +116,11 @@ static NSMutableSet *_retainedPopupControllers;
     return [UIApplication sharedApplication].statusBarHidden;
 }
 
+- (void)viewDidLayoutSubviews {
+    [super viewDidLayoutSubviews];
+    [self.ppc layoutContainerView];
+}
+
 @end
 
 @interface STPopupController () <UIViewControllerTransitioningDelegate, UIViewControllerAnimatedTransitioning, STPopupNavigationTouchEventDelegate>
@@ -559,7 +564,10 @@ static NSMutableSet *_retainedPopupControllers;
     CGFloat containerViewY = (_containerViewController.view.bounds.size.height - containerViewHeight) / 2;
     
     if (self.style == STPopupStyleBottomSheet) {
-        CGFloat bottomMargin = topViewController.actionSheetBottomMargin;
+        CGFloat bottomMargin = 0;
+        if ([topViewController respondsToSelector:@selector(actionSheetBottomMargin)]) {
+            bottomMargin = [(id<UIViewControllerSTPopupProtocol>)topViewController actionSheetBottomMargin];
+        }
         if (bottomMargin > 0) {
             containerViewY = _containerViewController.view.bounds.size.height - containerViewHeight - bottomMargin;
         } else {
