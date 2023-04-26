@@ -94,27 +94,52 @@
     UIInterfaceOrientation statusBarOrientation = [UIApplication sharedApplication].statusBarOrientation;
     UIInterfaceOrientationMask statusBarOrientationMask = 1 << statusBarOrientation;
     if ((mask & statusBarOrientationMask) != statusBarOrientationMask) {
-        UIInterfaceOrientation orientation = UIInterfaceOrientationUnknown;
+        UIDeviceOrientation orientation = UIDeviceOrientationUnknown;
         if ((mask & UIInterfaceOrientationMaskLandscapeLeft) == UIInterfaceOrientationMaskLandscapeLeft) {
-            orientation = UIInterfaceOrientationLandscapeLeft;
+            orientation = UIDeviceOrientationLandscapeRight;
         } else if ((mask & UIInterfaceOrientationMaskLandscapeRight) == UIInterfaceOrientationMaskLandscapeRight) {
-            orientation = UIInterfaceOrientationLandscapeRight;
+            orientation = UIDeviceOrientationLandscapeLeft;
         } else if ((mask & UIInterfaceOrientationMaskPortraitUpsideDown) == UIInterfaceOrientationMaskPortraitUpsideDown) {
-            orientation = UIInterfaceOrientationPortraitUpsideDown;
+            orientation = UIDeviceOrientationPortraitUpsideDown;
         } else {
-            orientation = UIInterfaceOrientationPortrait;
+            orientation = UIDeviceOrientationPortrait;
         }
-        [[UIDevice currentDevice] setValue:@(orientation) forKey:@"orientation"];
-        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            if (completion) {
-                completion();
-            }
-        });
+        [self st_rotateToOrientation:orientation completion:completion];
     } else {
         if (completion) {
             completion();
         }
     }
+}
+
+- (void)st_rotateToOrientation:(UIDeviceOrientation)orientation
+                    completion:(nullable dispatch_block_t)completion {
+    if (@available(iOS 16.0, *)) {
+        [self setNeedsUpdateOfSupportedInterfaceOrientations];
+        UIWindowScene *scene = self.view.window.windowScene;
+        UIWindowSceneGeometryPreferencesIOS *preferences = ({
+            [[UIWindowSceneGeometryPreferencesIOS alloc] initWithInterfaceOrientations:(1 << orientation)];
+        });
+        [scene requestGeometryUpdateWithPreferences:preferences
+                                       errorHandler:^(NSError * _Nonnull error) {
+#if DEBUG
+            NSLog(@"%@", error);
+#endif
+        }];
+        dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+            if (completion) {
+                completion();
+            }
+        });
+        return;
+    }
+    
+    [[UIDevice currentDevice] setValue:@(orientation) forKey:@"orientation"];
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.25 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        if (completion) {
+            completion();
+        }
+    });
 }
 
 - (UIViewController *)st_presentedViewController
